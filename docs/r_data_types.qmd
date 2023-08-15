@@ -1,0 +1,68 @@
+---
+title: "EDS 221 Day 2 Task"
+format: html
+editor: visual
+execute:
+  warning: false
+---
+
+## Day 2 Tasks / Activities
+
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+## Part 1. Checking data types
+
+### Create some data, check the classes, index!
+
+Vectors, lists & data frames
+
+```{r}
+vec_1 <- c(2, 5, 9, 10, 8, 12, 1, 0)
+class(vec_1)
+typeof(vec_1)
+
+vec_1_e3 <- vec_1[3]
+vec_1_e1 <- vec_1[1]
+vec_1_e5to7 <- vec_1[5:7]
+
+```
+
+```{r}
+vec_1_char <- as.character(vec_1)
+class(vec_1_char)
+```
+
+```{r}
+vec_2 <- c(town = "Santa Barbara", location = "Rincon", swell = "south")
+
+class(vec_2)
+length(vec_2)
+
+vec_2_e2 <- vec_2[2]
+```
+
+```{r}
+df_1 <- data.frame(region = c("A", "B", "A", "D"), species = c("otter", "great white", "sea lion", "gray whale"), count = c(12, 2, 36, 6))
+
+class(df_1)
+
+class(df_1$species)
+
+max_count <- max(df_1$count)
+```
+
+## Part 2. Wild data
+
+#### **Set-up**
+
+-   Visit the EDI site to learn about Mack Creek salamander & cutthroat trout data you\'ll be using here: [**data package**](https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-and.4027.14)
+
+-   Download the *first CSV* listed (`AS00601.csv`), and take a look at it (outside of R is fine as a first step, e.g. you can open the CSV in Excel)
+
+-   Explore the metadata (see View Full Metadata in the [**Resources section**](https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-and.4027.14) of the data website)
+
+-   What does each column contain? What are the units of each? What is the study overall about?

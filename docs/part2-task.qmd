@@ -1,0 +1,136 @@
+---
+title: "Mack Creek salamander & cutthroat trout data analysis"
+format: html
+editor: visual
+execute: 
+  warning: false
+---
+
+## Part 2
+
+Data from: https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-and.4027.14
+
+Abstract: Populations of West Slope cutthroat trout (Onchorhyncus clarki clarki) in two standard reaches of Mack Creek in the H.J. Andrews Experimental Forest have been monitored since 1987. Monitoring of Pacific Giant Salamanders, Dicamptodon tenebrosus began in 1993. The two standard reaches are in a section of clearcut forest (ca. 1963) and an upstream 500 year old coniferous forest. Sub-reaches are sampled with 2-pass electrofishing, and all captured vertebrates are measured and weighed. Additionally, a set of channel measurements are taken with each sampling. This study constitutes one of the longest continuous records of salmonid populations on record.
+
+Description of data entries: Vertebrate numbers and size: Annual survey of aquatic vertebrates, numbers, sizes
+
+Columns:
+
+Column Name: Definition ; Storage type: ; Measurement type:
+
+DBCODE: Database Code; char(5); nominal
+
+ENTITY: Entity number ; numeric(1, 0) ; ratio
+
+YEAR: Year of survey; numeric(4, 0); interval
+
+SITECODE: Coded name of sample area; char(8); nominal
+
+SECTION: Location of sampling section; char(2) ; nominal
+
+REACH: Reach sampled (in 50 m distances) ; char(1) ; nominal
+
+UNITNUM: Channel unit number (sequential) ; numeric(4, 1) ; ratio
+
+UNITTYPE: Channel unit classification type ; char(3) ; nominal
+
+LENGTH: Channel unit length ; numeric(4, 1) ; ratio
+
+WIDTH1: Wetted width of channel unit \-- transect 1 ; numeric(4,1) ; ratio
+
+WIDTH2: Wetted width of channel unit \-- transect 2 ; numeric(4,1) ; ratio
+
+\^ etc. until WIDTH 5
+
+DEPTH1: Depth 1 along width1 transect ; numeric(4, 2) ; ratio
+
+\^\^ etc. repeating in counts of 3, Depth 1, 2, or 3 along width1, 2, 3, 4 and 5, as well as maximums
+
+e.x.: DEPTH1 - DEPTH3 show depth1, depth2, and depth3 along width 1, DEPTH4 shows maximum depth along width1 transect
+
+MAXDEPTH: Maximum depth channel unit ; numeric(4, 2) ; ratio
+
+SAMPLEDATE: Date sampled ; numeric(4, 2) ; ratio
+
+notes : comments ; varchar(150) ; nominal
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(here)
+```
+
+Read in Data
+
+```{r}
+mack_verts <- read_csv(here("data", "AS00601.csv"))  |> 
+  clean_names()
+```
+
+A bit of wrangling & exploring
+
+```{r}
+mc_wt_5 <- pluck(mack_verts, "weight", 5)
+
+mc_length_8_20 <- mack_verts$length1[8:20]
+  #pluck(mack_verts, "length1", 8:20)
+```
+
+```{r}
+mc_dates <- mack_verts$sampledate
+```
+
+### Make a salamander subset
+
+```{r}
+# only Pacific Giant Salamanders
+
+mc_salamanders <- mack_verts |> 
+  filter(species == "DITE")
+```
+
+#### **Make a scatterplot of salamander length x weight**
+
+```{r}
+mc_salamanders_plot <- ggplot(mc_salamanders, aes(x = weight, y = length1)) +
+  geom_point() +
+  labs(x = "Weight (g)", 
+       y = "Snout-vent length (mm)", 
+       title = "Salamander length x weight",
+       subtitle = "Species: Dicamptodon tenebrosus",
+       caption = "Data source: https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-and.4027.14") +
+  theme_minimal()
+
+
+
+ggsave(filename = here("figs", "salamander_size.png"), plot = mc_salamanders_plot)
+
+
+mc_salamanders_plot
+```
+
+### Make a cutthroat plot
+
+```{r}
+mc_trout <- mack_verts |> 
+  filter(species == "ONCL")
+```
+
+```{r}
+cutthroat_size_plot <- ggplot(mc_trout, aes(x = weight, y = length1, color = reach)) +
+  geom_point() +
+  facet_wrap(vars(reach)) +
+  labs(x = "Weight (g)", 
+       y = "Snout-vent length (mm)", 
+       title = "Cutthroat trout length x weight",
+       subtitle = "Species: Onchorhyncus clarki clarki",
+       caption = "Data source: https://portal.edirepository.org/nis/mapbrowse?packageid=knb-lter-and.4027.14",
+       color = "Reach") +
+  theme_minimal()
+
+
+
+ggsave(filename = here("figs", "cutthroat_size.png"), plot = cutthroat_size_plot)
+
+cutthroat_size_plot
+```
